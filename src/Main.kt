@@ -2,7 +2,14 @@
 import java.util.Timer
 import java.util.TimerTask
 
-data class DogDoor(var open: Boolean = false) {
+data class DogDoor(var open: Boolean = false,
+                   private var allowedBarks: MutableList<Bark> =mutableListOf<Bark>()) {
+//
+fun addAllowedBark(newBark:Bark){
+    allowedBarks +=newBark
+}
+    fun getAllowedBarks()=allowedBarks
+//
     fun open() {
         open = true
         println("the door is open ! ")
@@ -14,28 +21,31 @@ data class DogDoor(var open: Boolean = false) {
         }
         timer.schedule(timerTask, 5000)
     }
-
+//
     fun close() {
-        open = false; println("the door is close ! ")
+        open = false
+        println("the door is close ! ")
     }
 }
 
-data class Remote(val dogDoor: DogDoor) {
-    fun pressButton() {
-        if (dogDoor.open) dogDoor.close()
-        else dogDoor.open()
-    }
-}
 //BarkRecognizer
-data class BarkRecognizer(private val door: DogDoor){
-    fun recognize(bark: String){
-        println("Found Voice $bark")
-        door.open()
-    }
-}
+data class BarkRecognizer(private val dogDoor: DogDoor){
+    fun recognize(bark: Bark){
+        dogDoor.getAllowedBarks().forEach {
+            if(it==bark){
+                println("Found Voice ${bark.sound}")
+                dogDoor.open()
+                return
+            }
 
+    }}
+}
+//Bark => نباح
+data class Bark(val sound: String, )
 fun main() {
     val dogDoor = DogDoor()
     val recognizer = BarkRecognizer(dogDoor)
-    recognizer.recognize("هو هو ")
+    dogDoor.addAllowedBark(Bark("صوت نباح الكلب"))
+    dogDoor.addAllowedBark(Bark("صوت نباح الكلب"))
+    recognizer.recognize(Bark("صوت نباح الكلب"))
 } 
